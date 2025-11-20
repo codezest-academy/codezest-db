@@ -1,0 +1,59 @@
+{
+  "name": "@codezest/db",
+  "version": "1.0.0",
+  "description": "Single source of truth for CodeZest database schema & types",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "prisma"
+  ],
+  "exports": {
+    ".": "./dist/index.js",
+    "./prisma": "./prisma/schema.prisma",
+    "./mongo": "./dist/mongo/index.js"
+  },
+  "scripts": {
+    "build": "tsc && prisma generate",
+    "migrate:dev": "prisma migrate dev",
+    "migrate:deploy": "prisma migrate deploy",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio",
+    "db:seed": "tsx prisma/seed.ts",
+    "release": "npm version patch && npm publish --access public",
+    "clean": "rm -rf dist node_modules",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "prisma",
+    "database",
+    "schema",
+    "codezest",
+    "learning-platform",
+    "typescript"
+  ],
+  "author": "CodeZest Academy",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "^5.20.0",
+    "mongodb": "^6.3.0"
+  },
+  "devDependencies": {
+    "prisma": "^5.20.0",
+    "typescript": "^5.6.2",
+    "tsx": "^4.19.1",
+    "@types/node": "^20.10.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codezest-academy/codezest-db.git"
+  },
+  "bugs": {
+    "url": "https://github.com/codezest-academy/codezest-db/issues"
+  },
+  "homepage": "https://github.com/codezest-academy/codezest-db#readme"
+}
