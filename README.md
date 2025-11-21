@@ -24,40 +24,40 @@ npm install @codezest-academy/db
 ## 🚀 Quick Start
 
 ```typescript
-import { prisma, User, Role } from '@codezest-academy/db'
+import { prisma, User, Role } from "@codezest-academy/db";
 
 // Create a user
 const user = await prisma.user.create({
   data: {
-    email: 'student@example.com',
-    name: 'John Doe',
+    email: "student@example.com",
+    name: "John Doe",
     role: Role.STUDENT,
   },
-})
+});
 
 // Query with relations
 const userWithProfile = await prisma.user.findUnique({
   where: { id: userId },
   include: { profile: true },
-})
+});
 
 // Use enums for type safety
 const students = await prisma.user.findMany({
   where: { role: Role.STUDENT },
-})
+});
 ```
 
 ## 🗄️ Database Schema
 
 ### Service Ownership
 
-| Schema | Service | Models | Purpose |
-|--------|---------|--------|---------|
-| `auth.*` | codezest-auth | 6 | User accounts, sessions, OAuth |
-| `learning.*` | codezest-api | 15 | Languages, modules, materials, assignments, MCQs, analysis |
-| `payments.*` | codezest-payments | 4 | Subscriptions, transactions, invoices |
-| `notifications.*` | codezest-notifications | 3 | Notifications, preferences, email logs |
-| `activity.*` | codezest-activity | 2 | Activity feeds, analytics |
+| Schema            | Service                | Models | Purpose                                                    |
+| ----------------- | ---------------------- | ------ | ---------------------------------------------------------- |
+| `auth.*`          | codezest-auth          | 6      | User accounts, sessions, OAuth                             |
+| `learning.*`      | codezest-api           | 15     | Languages, modules, materials, assignments, MCQs, analysis |
+| `payments.*`      | codezest-payments      | 4      | Subscriptions, transactions, invoices                      |
+| `notifications.*` | codezest-notifications | 3      | Notifications, preferences, email logs                     |
+| `activity.*`      | codezest-activity      | 2      | Activity feeds, analytics                                  |
 
 ### Models Overview
 
@@ -145,30 +145,30 @@ MONGODB_URL="mongodb+srv://user:password@cluster.mongodb.net/codezest"
 ### Basic Queries
 
 ```typescript
-import { prisma } from '@codezest-academy/db'
+import { prisma } from "@codezest-academy/db";
 
 // Find all students
 const students = await prisma.user.findMany({
-  where: { role: 'STUDENT' },
-})
+  where: { role: "STUDENT" },
+});
 
 // Create a programming language
 const python = await prisma.programmingLanguage.create({
   data: {
-    name: 'Python',
-    slug: 'python',
-    difficulty: 'BEGINNER',
+    name: "Python",
+    slug: "python",
+    difficulty: "BEGINNER",
   },
-})
+});
 
 // Enroll user in a language
 const enrollment = await prisma.languageEnrollment.create({
   data: {
     userId: user.id,
     languageId: python.id,
-    status: 'ACTIVE',
+    status: "ACTIVE",
   },
-})
+});
 ```
 
 ### Complex Queries with Relations
@@ -188,7 +188,7 @@ const module = await prisma.module.findUnique({
       },
     },
   },
-})
+});
 
 // Get user progress across all modules
 const progress = await prisma.moduleProgress.findMany({
@@ -198,7 +198,7 @@ const progress = await prisma.moduleProgress.findMany({
       include: { language: true },
     },
   },
-})
+});
 ```
 
 ### Transactions
@@ -208,46 +208,46 @@ const progress = await prisma.moduleProgress.findMany({
 await prisma.$transaction([
   prisma.user.create({
     data: {
-      email: 'user@example.com',
-      name: 'John Doe',
+      email: "user@example.com",
+      name: "John Doe",
     },
   }),
   prisma.userProfile.create({
     data: {
       userId: user.id,
-      bio: 'Learning to code',
+      bio: "Learning to code",
     },
   }),
   prisma.subscription.create({
     data: {
       userId: user.id,
-      plan: 'FREE',
-      status: 'ACTIVE',
+      plan: "FREE",
+      status: "ACTIVE",
     },
   }),
-])
+]);
 ```
 
 ### MongoDB Integration
 
 ```typescript
-import { mongo } from '@codezest-academy/db/mongo'
+import { mongo } from "@codezest-academy/db/mongo";
 
 // Log user activity
-const activityLogs = await mongo.collection('activity_logs')
+const activityLogs = await mongo.collection("activity_logs");
 await activityLogs.insertOne({
   userId: user.id,
-  action: 'module_completed',
+  action: "module_completed",
   timestamp: new Date(),
-})
+});
 
 // Track analytics
-const analytics = await mongo.collection('analytics_events')
+const analytics = await mongo.collection("analytics_events");
 await analytics.insertOne({
-  eventName: 'quiz_completed',
+  eventName: "quiz_completed",
   userId: user.id,
   properties: { quizId, score: 85 },
-})
+});
 ```
 
 ## 🔄 Schema Changes
@@ -287,15 +287,16 @@ npx prisma migrate deploy --schema=node_modules/@codezest-academy/db/prisma/sche
 
 ## 🛠️ Available Scripts
 
-| Command | Description |
-|---------|-------------|
-| `npm run build` | Compile TypeScript + generate Prisma client |
-| `npm run migrate:dev` | Create new migration (development) |
-| `npm run migrate:deploy` | Apply migrations (production) |
-| `npm run db:push` | Push schema changes without migration |
-| `npm run db:studio` | Open Prisma Studio (database GUI) |
-| `npm run typecheck` | Check TypeScript types |
-| `npm run release` | Bump version + publish |
+| Command                  | Description                                 |
+| ------------------------ | ------------------------------------------- |
+| `npm run build`          | Compile TypeScript + generate Prisma client |
+| `npm run migrate:dev`    | Create new migration (development)          |
+| `npm run migrate:deploy` | Apply migrations (production)               |
+| `npm run db:push`        | Push schema changes without migration       |
+| `npm run db:studio`      | Open Prisma Studio (database GUI)           |
+| `npm run typecheck`      | Check TypeScript types                      |
+| `npm run test`           | Run unit tests with Vitest                  |
+| `npm run release`        | Bump version + publish                      |
 
 ## 📖 API Reference
 
@@ -313,16 +314,16 @@ await prisma.assignment.update({ where: {...}, data: {...} })
 ### Utility Functions
 
 ```typescript
-import { connect, disconnect, healthCheck } from '@codezest-academy/db'
+import { connect, disconnect, healthCheck } from "@codezest-academy/db";
 
 // Connect explicitly (auto-connects on first query)
-await connect()
+await connect();
 
 // Health check
-const isHealthy = await healthCheck()
+const isHealthy = await healthCheck();
 
 // Disconnect (call on app shutdown)
-await disconnect()
+await disconnect();
 ```
 
 ### Type Imports
@@ -336,7 +337,7 @@ import type {
   Module,
   Assignment,
   Subscription,
-} from '@codezest-academy/db'
+} from "@codezest-academy/db";
 ```
 
 ## 🏗️ Architecture
