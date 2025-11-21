@@ -1,4 +1,4 @@
-# @codezest/db
+# @codezest-academy/db
 
 > Single source of truth for CodeZest database schema & types
 
@@ -18,13 +18,13 @@ Production-ready shared database package for CodeZest microservices architecture
 ## 📦 Installation
 
 ```bash
-npm install @codezest/db
+npm install @codezest-academy/db
 ```
 
 ## 🚀 Quick Start
 
 ```typescript
-import { prisma, User, Role } from '@codezest/db'
+import { prisma, User, Role } from '@codezest-academy/db'
 
 // Create a user
 const user = await prisma.user.create({

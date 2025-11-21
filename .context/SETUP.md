@@ -191,14 +191,28 @@ npm version patch
 
 ### In Consuming Services
 
+To install packages from GitHub Packages, you must configure `.npmrc` in the consuming project:
+
+1. Create `.npmrc` in the project root:
+```ini
+@codezest-academy:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
+```
+
+2. Install the package:
 ```bash
-# Update package
-npm install @codezest/db@latest
+# Ensure GITHUB_TOKEN is set in your environment
+export GITHUB_TOKEN=your_personal_access_token
+npm install @codezest-academy/db@latest
+```
 
-# Run migrations
-npx prisma migrate deploy --schema=node_modules/@codezest/db/prisma/schema.prisma
+3. Run migrations:
+```bash
+npx prisma migrate deploy --schema=node_modules/@codezest-academy/db/prisma/schema.prisma
+```
 
-# Restart app
+4. Restart app:
+```bash
 npm run dev
 ```
 

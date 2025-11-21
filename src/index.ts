@@ -49,8 +49,8 @@ export * from '@prisma/client'
 // ============================================================================
 // RE-EXPORT ALL PRISMA TYPES
 // ============================================================================
-// This allows consuming services to import types directly from @codezest/db
-// Example: import { User, Role, Prisma } from '@codezest/db'
+// This allows consuming services to import types directly from @codezest-academy/db
+// Example: import { User, Role, Prisma } from '@codezest-academy/db'
 
 export * from '@prisma/client'
 
