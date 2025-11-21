@@ -1,4 +1,4 @@
-# Setup Guide - @codezest/db
+# Setup Guide - @codezest-academy/db
 
 Complete setup instructions for the CodeZest database package.
 
@@ -80,7 +80,7 @@ node -e "const db = require('./dist/index.js'); console.log('✅ Package works!'
 ```bash
 git init
 git add .
-git commit -m "feat: initial implementation of @codezest/db"
+git commit -m "feat: initial implementation of @codezest-academy/db"
 git branch -M main
 git remote add origin https://github.com/codezest-academy/codezest-db.git
 git push -u origin main
@@ -226,17 +226,17 @@ npm run dev
 cd /path/to/codezest-auth
 
 # Install package
-npm install @codezest/db@latest
+npm install @codezest-academy/db@latest
 
 # Test import
-node -e "const { prisma, User, Role } = require('@codezest/db'); console.log('✅ Imports work!')"
+node -e "const { prisma, User, Role } = require('@codezest-academy/db'); console.log('✅ Imports work!')"
 
 # Use in code
 ```
 
 **src/index.ts:**
 ```typescript
-import { prisma, User, Role } from '@codezest/db'
+import { prisma, User, Role } from '@codezest-academy/db'
 
 // Create user
 const user = await prisma.user.create({
@@ -351,10 +351,10 @@ npx prisma migrate reset
 
 ```bash
 # Update package
-npm install @codezest/db@latest
+npm install @codezest-academy/db@latest
 
 # Regenerate types
-npx prisma generate --schema=node_modules/@codezest/db/prisma/schema.prisma
+npx prisma generate --schema=node_modules/@codezest-academy/db/prisma/schema.prisma
 ```
 
 ---

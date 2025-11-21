@@ -145,7 +145,7 @@ MONGODB_URL="mongodb+srv://user:password@cluster.mongodb.net/codezest"
 ### Basic Queries
 
 ```typescript
-import { prisma } from '@codezest/db'
+import { prisma } from '@codezest-academy/db'
 
 // Find all students
 const students = await prisma.user.findMany({
@@ -231,7 +231,7 @@ await prisma.$transaction([
 ### MongoDB Integration
 
 ```typescript
-import { mongo } from '@codezest/db/mongo'
+import { mongo } from '@codezest-academy/db/mongo'
 
 // Log user activity
 const activityLogs = await mongo.collection('activity_logs')
@@ -272,17 +272,17 @@ git commit -m "feat: add new field"
 npm run release
 
 # 6. Update consuming services
-npm install @codezest/db@latest
+npm install @codezest-academy/db@latest
 ```
 
 ### In Consuming Services
 
 ```bash
 # Update to latest version
-npm install @codezest/db@latest
+npm install @codezest-academy/db@latest
 
 # Run migrations
-npx prisma migrate deploy --schema=node_modules/@codezest/db/prisma/schema.prisma
+npx prisma migrate deploy --schema=node_modules/@codezest-academy/db/prisma/schema.prisma
 ```
 
 ## 🛠️ Available Scripts
@@ -302,7 +302,7 @@ npx prisma migrate deploy --schema=node_modules/@codezest/db/prisma/schema.prism
 ### PrismaClient
 
 ```typescript
-import { prisma } from '@codezest/db'
+import { prisma } from '@codezest-academy/db'
 
 // All Prisma client methods available
 await prisma.user.findMany()
@@ -313,7 +313,7 @@ await prisma.assignment.update({ where: {...}, data: {...} })
 ### Utility Functions
 
 ```typescript
-import { connect, disconnect, healthCheck } from '@codezest/db'
+import { connect, disconnect, healthCheck } from '@codezest-academy/db'
 
 // Connect explicitly (auto-connects on first query)
 await connect()
@@ -336,7 +336,7 @@ import type {
   Module,
   Assignment,
   Subscription,
-} from '@codezest/db'
+} from '@codezest-academy/db'
 ```
 
 ## 🏗️ Architecture
