@@ -1,6 +1,6 @@
 /**
  * @codezest/db - Custom TypeScript Types
- * 
+ *
  * Additional type definitions, utility types, and type guards
  * for better type safety across consuming services.
  */
@@ -12,19 +12,20 @@
 /**
  * Make specific fields optional
  */
-export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
+export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 /**
  * Make specific fields required
  */
-export type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
+export type RequiredBy<T, K extends keyof T> = Omit<T, K> &
+  Required<Pick<T, K>>;
 
 /**
  * Extract non-nullable fields
  */
 export type NonNullableFields<T> = {
-  [P in keyof T]: NonNullable<T[P]>
-}
+  [P in keyof T]: NonNullable<T[P]>;
+};
 
 // ============================================================================
 // PRISMA PAYLOAD TYPES
@@ -34,9 +35,9 @@ export type NonNullableFields<T> = {
 
 /**
  * Example usage (uncomment after migration):
- * 
+ *
  * import type { Prisma } from '@prisma/client'
- * 
+ *
  * export type UserWithProfile = Prisma.UserGetPayload<{
  *   include: { profile: true }
  * }>
@@ -105,42 +106,37 @@ export type SubscriptionWithHistory = Prisma.SubscriptionGetPayload<{
  * Check if user has a specific role
  */
 export function hasRole(user: { role: string }, role: string): boolean {
-  return user.role === role
+  return user.role === role;
 }
 
 /**
  * Check if user is admin
  */
 export function isAdmin(user: { role: string }): boolean {
-  return user.role === 'ADMIN'
+  return user.role === "ADMIN";
 }
 
 /**
- * Check if user is instructor
+ * Check if user is a regular user
  */
-export function isInstructor(user: { role: string }): boolean {
-  return user.role === 'INSTRUCTOR'
-}
-
-/**
- * Check if user is student
- */
-export function isStudent(user: { role: string }): boolean {
-  return user.role === 'STUDENT'
+export function isUser(user: { role: string }): boolean {
+  return user.role === "USER";
 }
 
 /**
  * Check if subscription is active
  */
-export function isSubscriptionActive(subscription: { status: string }): boolean {
-  return subscription.status === 'ACTIVE'
+export function isSubscriptionActive(subscription: {
+  status: string;
+}): boolean {
+  return subscription.status === "ACTIVE";
 }
 
 /**
  * Check if submission passed
  */
 export function submissionPassed(submission: { status: string }): boolean {
-  return submission.status === 'PASSED'
+  return submission.status === "PASSED";
 }
 
 // ============================================================================
@@ -151,42 +147,42 @@ export function submissionPassed(submission: { status: string }): boolean {
  * User preferences structure
  */
 export interface UserPreferences {
-  theme?: 'light' | 'dark' | 'system'
-  language?: string
+  theme?: "light" | "dark" | "system";
+  language?: string;
   notifications?: {
-    email?: boolean
-    push?: boolean
-    sms?: boolean
-  }
-  timezone?: string
+    email?: boolean;
+    push?: boolean;
+    sms?: boolean;
+  };
+  timezone?: string;
 }
 
 /**
  * Code quality metrics structure
  */
 export interface CodeQualityMetrics {
-  readability: number // 0-10
-  efficiency: number // 0-10
-  bestPractices: number // 0-10
-  maintainability?: number // 0-10
-  documentation?: number // 0-10
+  readability: number; // 0-10
+  efficiency: number; // 0-10
+  bestPractices: number; // 0-10
+  maintainability?: number; // 0-10
+  documentation?: number; // 0-10
 }
 
 /**
  * Quiz performance breakdown
  */
 export interface PerformanceBreakdown {
-  [topic: string]: number // Topic name -> score percentage
+  [topic: string]: number; // Topic name -> score percentage
 }
 
 /**
  * Subscription metadata
  */
 export interface SubscriptionMetadata {
-  source?: string // "web", "mobile", "admin"
-  couponCode?: string
-  referralCode?: string
-  customFields?: Record<string, unknown>
+  source?: string; // "web", "mobile", "admin"
+  couponCode?: string;
+  referralCode?: string;
+  customFields?: Record<string, unknown>;
 }
 
 // ============================================================================
@@ -197,24 +193,24 @@ export interface SubscriptionMetadata {
  * Pagination parameters
  */
 export interface PaginationParams {
-  page?: number
-  limit?: number
-  cursor?: string
+  page?: number;
+  limit?: number;
+  cursor?: string;
 }
 
 /**
  * Paginated response
  */
 export interface PaginatedResponse<T> {
-  data: T[]
+  data: T[];
   pagination: {
-    total: number
-    page: number
-    limit: number
-    totalPages: number
-    hasNext: boolean
-    hasPrev: boolean
-  }
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
 }
 
 // ============================================================================
@@ -225,25 +221,25 @@ export interface PaginatedResponse<T> {
  * User filters
  */
 export interface UserFilters {
-  role?: string
-  emailVerified?: boolean
-  createdAfter?: Date
-  createdBefore?: Date
+  role?: string;
+  emailVerified?: boolean;
+  createdAfter?: Date;
+  createdBefore?: Date;
 }
 
 /**
  * Module filters
  */
 export interface ModuleFilters {
-  languageId?: string
-  difficulty?: string
+  languageId?: string;
+  difficulty?: string;
 }
 
 /**
  * Assignment filters
  */
 export interface AssignmentFilters {
-  moduleId?: string
-  difficulty?: string
-  status?: string
+  moduleId?: string;
+  difficulty?: string;
+  status?: string;
 }
