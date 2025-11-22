@@ -31,30 +31,30 @@ datasource db {
 
 /// Core user accounts with authentication
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String?  // Nullable for OAuth-only users
-  name      String
-  role      Role     @default(STUDENT)
-  
+  id       String   @id @default(uuid())
+  email    String   @unique
+  password String? // Nullable for OAuth-only users
+  name     String
+  role     UserRole @default(USER)
+
   // Email verification
-  emailVerified Boolean  @default(false)
-  
+  emailVerified Boolean @default(false)
+
   // Relationships
-  profile              UserProfile?
-  sessions             Session[]
-  oauthAccounts        OAuthAccount[]
-  passwordResets       PasswordReset[]
-  emailVerifications   EmailVerification[]
-  
+  profile            UserProfile?
+  sessions           Session[]
+  oauthAccounts      OAuthAccount[]
+  passwordResets     PasswordReset[]
+  emailVerifications EmailVerification[]
+
   // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime? // Soft delete
-  
-  @@map("auth.users")
+
   @@index([email])
   @@index([role])
+  @@map("auth.users")
 }
 
 /// Extended user profile information
@@ -62,102 +62,109 @@ model UserProfile {
   id     String @id @default(uuid())
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   // Basic info
   bio      String?
   avatar   String? // URL to profile picture
   location String?
   website  String?
-  
+
+  // NEW FIELDS
+  occupation String?
+  company    String?
+  phone      String?
+  address    String?
+  socials    Json? // { github: string, linkedin: string, twitter: string, etc. }
+
   // Social links
   githubUrl   String?
   linkedinUrl String?
   twitterUrl  String?
-  
+
   // User preferences (JSONB for flexibility)
   preferences Json? // { theme: "dark", language: "en", notifications: {...} }
-  
+
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
-  @@map("auth.user_profiles")
+
   @@index([userId])
+  @@map("auth.user_profiles")
 }
 
 /// Active user sessions for JWT tracking
 model Session {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   token     String   @unique
   expiresAt DateTime
   ipAddress String?
   userAgent String?
-  
+
   createdAt DateTime @default(now())
-  
-  @@map("auth.sessions")
+
   @@index([userId])
   @@index([token])
   @@index([expiresAt])
+  @@map("auth.sessions")
 }
 
 /// OAuth provider accounts (Google, GitHub, etc.)
 model OAuthAccount {
-  id         String @id @default(uuid())
-  userId     String
-  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   provider   String // "google", "github", "linkedin"
   providerId String // ID from OAuth provider
-  
+
   accessToken  String?
   refreshToken String?
   expiresAt    DateTime?
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   @@unique([provider, providerId])
-  @@map("auth.oauth_accounts")
   @@index([userId])
+  @@map("auth.oauth_accounts")
 }
 
 /// Password reset tokens
 model PasswordReset {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  token     String   @unique
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  token     String    @unique
   expiresAt DateTime
-  used      Boolean  @default(false)
+  used      Boolean   @default(false)
   usedAt    DateTime?
-  
+
   createdAt DateTime @default(now())
-  
-  @@map("auth.password_resets")
+
   @@index([userId])
   @@index([token])
+  @@map("auth.password_resets")
 }
 
 /// Email verification tokens
 model EmailVerification {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  token     String   @unique
-  verified  Boolean  @default(false)
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  token      String    @unique
+  verified   Boolean   @default(false)
   verifiedAt DateTime?
-  
+
   createdAt DateTime @default(now())
-  
-  @@map("auth.email_verifications")
+
   @@index([userId])
   @@index([token])
+  @@map("auth.email_verifications")
 }
 
 // ============================================================================
@@ -173,181 +180,181 @@ model ProgrammingLanguage {
   name        String     @unique // "Python", "JavaScript", "Java"
   slug        String     @unique // "python", "javascript", "java"
   description String?
-  icon        String?    // URL or emoji
+  icon        String? // URL or emoji
   difficulty  Difficulty @default(BEGINNER)
   isActive    Boolean    @default(true)
-  
+
   // Relationships
   modules     Module[]
   enrollments LanguageEnrollment[]
-  
+
   // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
-  
-  @@map("learning.programming_languages")
+
   @@index([slug])
   @@index([isActive])
+  @@map("learning.programming_languages")
 }
 
 /// Learning modules within each programming language
 model Module {
-  id          String              @id @default(uuid())
-  languageId  String
-  language    ProgrammingLanguage @relation(fields: [languageId], references: [id], onDelete: Cascade)
-  
+  id         String              @id @default(uuid())
+  languageId String
+  language   ProgrammingLanguage @relation(fields: [languageId], references: [id], onDelete: Cascade)
+
   title       String // "Python Basics", "Python OOP"
   slug        String // "python-basics"
   description String?
   syllabus    String? // JSON or text describing what's covered
-  order       Int     // Display order
-  
+  order       Int // Display order
+
   // Relationships
   materials   Material[]
   assignments Assignment[]
   mcqQuizzes  MCQQuiz[]
   progress    ModuleProgress[]
-  
+
   // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
-  
+
   @@unique([languageId, slug])
-  @@map("learning.modules")
   @@index([languageId])
   @@index([order])
+  @@map("learning.modules")
 }
 
 /// Learning materials (videos, articles, code examples)
 model Material {
-  id       String       @id @default(uuid())
+  id       String @id @default(uuid())
   moduleId String
-  module   Module       @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  
+  module   Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
   title    String
   type     MaterialType // VIDEO, ARTICLE, CODE_EXAMPLE, INTERACTIVE
-  content  String       // URL for video, markdown for article, code for examples
-  duration Int?         // minutes for video
+  content  String // URL for video, markdown for article, code for examples
+  duration Int? // minutes for video
   order    Int
-  
+
   // Relationships
   progress MaterialProgress[]
-  
+
   // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
-  
-  @@map("learning.materials")
+
   @@index([moduleId])
   @@index([type])
   @@index([order])
+  @@map("learning.materials")
 }
 
 /// Coding assignments with test cases
 model Assignment {
-  id          String     @id @default(uuid())
-  moduleId    String
-  module      Module     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  
+  id       String @id @default(uuid())
+  moduleId String
+  module   Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
   title       String
   description String
   difficulty  Difficulty
-  
+
   starterCode String? // Initial code template
-  testCases   String  // JSON array of test cases
+  testCases   String // JSON array of test cases
   hints       String? // JSON array of hints
-  
+
   maxScore  Int  @default(100)
   timeLimit Int? // minutes
-  
+
   // Relationships
   submissions AssignmentSubmission[]
-  
+
   // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
-  
-  @@map("learning.assignments")
+
   @@index([moduleId])
   @@index([difficulty])
+  @@map("learning.assignments")
 }
 
 /// User assignment submissions
 model AssignmentSubmission {
-  id           String           @id @default(uuid())
+  id           String     @id @default(uuid())
   userId       String
   assignmentId String
-  assignment   Assignment       @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  
-  code     String           // User's submitted code
-  language String           // "python", "javascript"
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+
+  code     String // User's submitted code
+  language String // "python", "javascript"
   status   SubmissionStatus @default(PENDING)
   score    Int?
-  feedback String?          // Auto-generated or instructor feedback
-  
+  feedback String? // Auto-generated or instructor feedback
+
   // Relationships
   analysis AssignmentAnalysis?
-  
+
   // Timestamps
   submittedAt DateTime  @default(now())
   gradedAt    DateTime?
-  
-  @@map("learning.assignment_submissions")
+
   @@index([userId])
   @@index([assignmentId])
   @@index([status])
+  @@map("learning.assignment_submissions")
 }
 
 /// MCQ quizzes for assessment
 model MCQQuiz {
-  id           String   @id @default(uuid())
-  moduleId     String
-  module       Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  
+  id       String @id @default(uuid())
+  moduleId String
+  module   Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
   title        String
   description  String?
-  passingScore Int      @default(70)
-  timeLimit    Int?     // minutes
-  
+  passingScore Int     @default(70)
+  timeLimit    Int? // minutes
+
   // Relationships
   questions MCQQuestion[]
   attempts  MCQAttempt[]
-  
+
   // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
-  
-  @@map("learning.mcq_quizzes")
+
   @@index([moduleId])
+  @@map("learning.mcq_quizzes")
 }
 
 /// MCQ quiz questions
 model MCQQuestion {
-  id          String   @id @default(uuid())
-  quizId      String
-  quiz        MCQQuiz  @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  
+  id     String  @id @default(uuid())
+  quizId String
+  quiz   MCQQuiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
   question    String
   explanation String? // Shown after answering
   order       Int
   points      Int     @default(1)
-  
+
   // Relationships
   options MCQOption[]
   answers MCQAnswer[]
-  
+
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
-  @@map("learning.mcq_questions")
+
   @@index([quizId])
   @@index([order])
+  @@map("learning.mcq_questions")
 }
 
 /// MCQ answer options
@@ -355,16 +362,16 @@ model MCQOption {
   id         String      @id @default(uuid())
   questionId String
   question   MCQQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  
+
   optionText String
   isCorrect  Boolean
   order      Int
-  
+
   // Relationships
   selectedBy MCQAnswer[]
-  
-  @@map("learning.mcq_options")
+
   @@index([questionId])
+  @@map("learning.mcq_options")
 }
 
 /// User language enrollments
@@ -373,17 +380,17 @@ model LanguageEnrollment {
   userId     String
   languageId String
   language   ProgrammingLanguage @relation(fields: [languageId], references: [id], onDelete: Cascade)
-  
+
   status EnrollmentStatus @default(ACTIVE)
-  
+
   enrolledAt  DateTime  @default(now())
   completedAt DateTime?
-  
+
   @@unique([userId, languageId])
-  @@map("learning.language_enrollments")
   @@index([userId])
   @@index([languageId])
   @@index([status])
+  @@map("learning.language_enrollments")
 }
 
 /// Module progress tracking
@@ -392,19 +399,19 @@ model ModuleProgress {
   userId   String
   moduleId String
   module   Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  
+
   status          ProgressStatus @default(NOT_STARTED)
   progressPercent Int            @default(0) // 0-100
-  
+
   startedAt      DateTime?
   completedAt    DateTime?
   lastAccessedAt DateTime  @default(now())
-  
+
   @@unique([userId, moduleId])
-  @@map("learning.module_progress")
   @@index([userId])
   @@index([moduleId])
   @@index([status])
+  @@map("learning.module_progress")
 }
 
 /// Material view tracking
@@ -413,40 +420,40 @@ model MaterialProgress {
   userId     String
   materialId String
   material   Material @relation(fields: [materialId], references: [id], onDelete: Cascade)
-  
+
   completed Boolean @default(false)
   viewCount Int     @default(0)
-  
+
   lastViewedAt DateTime  @default(now())
   completedAt  DateTime?
-  
+
   @@unique([userId, materialId])
-  @@map("learning.material_progress")
   @@index([userId])
   @@index([materialId])
   @@index([completed])
+  @@map("learning.material_progress")
 }
 
 /// Quiz attempts
 model MCQAttempt {
-  id      String   @id @default(uuid())
-  userId  String
-  quizId  String
-  quiz    MCQQuiz  @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  
+  id     String  @id @default(uuid())
+  userId String
+  quizId String
+  quiz   MCQQuiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
   score Int?
-  
+
   // Relationships
   answers  MCQAnswer[]
   analysis QuizAnalysis?
-  
+
   // Timestamps
   startedAt   DateTime  @default(now())
   completedAt DateTime?
-  
-  @@map("learning.mcq_attempts")
+
   @@index([userId])
   @@index([quizId])
+  @@map("learning.mcq_attempts")
 }
 
 /// Individual MCQ answers
@@ -458,14 +465,14 @@ model MCQAnswer {
   question         MCQQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
   selectedOptionId String?
   selectedOption   MCQOption?  @relation(fields: [selectedOptionId], references: [id], onDelete: SetNull)
-  
+
   isCorrect Boolean
-  
+
   answeredAt DateTime @default(now())
-  
-  @@map("learning.mcq_answers")
+
   @@index([attemptId])
   @@index([questionId])
+  @@map("learning.mcq_answers")
 }
 
 /// AI/Manual analysis of assignment submissions
@@ -473,37 +480,37 @@ model AssignmentAnalysis {
   id           String               @id @default(uuid())
   submissionId String               @unique
   submission   AssignmentSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
-  
+
   analysisType AnalysisType @default(AI)
-  
+
   // Analysis results
   overallScore Int? // 0-100
-  
+
   // Detailed feedback
-  strengths String[] // Array of strengths
-  weaknesses String[] // Array of weaknesses
+  strengths   String[] // Array of strengths
+  weaknesses  String[] // Array of weaknesses
   suggestions String[] // Improvement suggestions
-  
+
   // Code quality metrics (JSONB)
   codeQuality Json? // { readability: 8, efficiency: 7, bestPractices: 9 }
-  
+
   // Detailed breakdown
   detailedFeedback String?
-  
+
   // AI metadata
   aiModel  String? // "gpt-4", "claude-3", etc.
   aiPrompt String? // Prompt used for AI analysis
-  
+
   // Manual analysis
   analyzedBy String? // userId of instructor (if manual)
-  
+
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
-  @@map("learning.assignment_analyses")
+
   @@index([submissionId])
   @@index([analysisType])
+  @@map("learning.assignment_analyses")
 }
 
 /// AI/Manual analysis of quiz attempts
@@ -511,39 +518,39 @@ model QuizAnalysis {
   id        String     @id @default(uuid())
   attemptId String     @unique
   attempt   MCQAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
-  
+
   analysisType AnalysisType @default(AI)
-  
+
   // Performance breakdown (JSONB)
   performanceBreakdown Json // { "Python Basics": 80, "Functions": 90, "Loops": 70 }
-  
+
   // Strengths and weaknesses
   strongTopics String[] // Topics user excels at
   weakTopics   String[] // Topics needing improvement
-  
+
   // Recommendations
   recommendations String[] // Personalized study recommendations
-  
+
   // Insights
   insights String? // AI-generated insights
-  
+
   // Time analysis
-  avgTimePerQuestion Int?    // Average seconds per question
+  avgTimePerQuestion Int? // Average seconds per question
   timeManagement     String? // "Good", "Needs improvement", etc.
-  
+
   // AI metadata
   aiModel String?
-  
+
   // Manual analysis
   analyzedBy String? // userId of instructor
-  
+
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
-  @@map("learning.quiz_analyses")
+
   @@index([attemptId])
   @@index([analysisType])
+  @@map("learning.quiz_analyses")
 }
 
 // ============================================================================
@@ -557,34 +564,34 @@ model QuizAnalysis {
 model Subscription {
   id     String @id @default(uuid())
   userId String @unique
-  
+
   plan   SubscriptionPlan   @default(FREE)
   status SubscriptionStatus @default(ACTIVE)
-  
+
   // Stripe integration
   stripeCustomerId     String? @unique
   stripeSubscriptionId String? @unique
-  
+
   // Validity
   startedAt  DateTime  @default(now())
   validUntil DateTime? // null for FREE plan = lifetime access
   canceledAt DateTime?
-  
+
   // Relationships
   transactions Transaction[]
   invoices     Invoice[]
-  
+
   // Metadata (JSONB for flexibility)
   metadata Json?
-  
+
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
-  @@map("payments.subscriptions")
+
   @@index([userId])
   @@index([plan])
   @@index([status])
+  @@map("payments.subscriptions")
 }
 
 /// Payment transactions
@@ -593,29 +600,29 @@ model Transaction {
   userId         String
   subscriptionId String?
   subscription   Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
-  
+
   amount   Int    @default(0) // Amount in cents (e.g., 999 = $9.99)
   currency String @default("usd")
-  
+
   status TransactionStatus @default(PENDING)
-  
+
   // Stripe integration
   stripePaymentIntentId String? @unique
   stripeChargeId        String? @unique
-  
+
   // Payment details
   paymentMethod String? // "card", "paypal", etc.
   description   String?
-  
+
   // Timestamps
   createdAt DateTime  @default(now())
   paidAt    DateTime?
   failedAt  DateTime?
-  
-  @@map("payments.transactions")
+
   @@index([userId])
   @@index([subscriptionId])
   @@index([status])
+  @@map("payments.transactions")
 }
 
 /// Generated invoices
@@ -623,59 +630,59 @@ model Invoice {
   id             String       @id @default(uuid())
   subscriptionId String
   subscription   Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
-  
+
   invoiceNumber String @unique // INV-2025-001
-  
+
   amount   Int    @default(0) // Amount in cents
   currency String @default("usd")
-  tax      Int?   // Tax amount in cents
+  tax      Int? // Tax amount in cents
   total    Int    @default(0) // Total amount including tax
-  
+
   status InvoiceStatus @default(DRAFT)
-  
+
   // Stripe
   stripeInvoiceId String? @unique
   invoiceUrl      String? // PDF URL
-  
+
   // Dates
   issuedAt DateTime  @default(now())
   dueAt    DateTime?
   paidAt   DateTime?
-  
-  @@map("payments.invoices")
+
   @@index([subscriptionId])
   @@index([status])
   @@index([invoiceNumber])
+  @@map("payments.invoices")
 }
 
 /// Saved payment methods
 model PaymentMethod {
   id     String @id @default(uuid())
   userId String
-  
+
   type PaymentMethodType
-  
+
   // Stripe
   stripePaymentMethodId String? @unique
-  
+
   // Card details (last 4 digits, brand)
   last4       String?
   brand       String? // "visa", "mastercard", etc.
   expiryMonth Int?
   expiryYear  Int?
-  
+
   // PayPal
   paypalEmail String?
-  
+
   isDefault Boolean @default(false)
-  
+
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
-  @@map("payments.payment_methods")
+
   @@index([userId])
   @@index([isDefault])
+  @@map("payments.payment_methods")
 }
 
 // ============================================================================
@@ -689,69 +696,69 @@ model PaymentMethod {
 model Notification {
   id     String @id @default(uuid())
   userId String
-  
+
   type     String // "course_enrolled", "quiz_completed", "payment_success"
   title    String
   message  String
   priority String @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
-  
+
   read   Boolean   @default(false)
   readAt DateTime?
-  
+
   // Metadata (JSONB)
   metadata Json? // Additional data like courseId, quizId, etc.
-  
+
   // Timestamps
   createdAt DateTime @default(now())
-  
-  @@map("notifications.notifications")
+
   @@index([userId])
   @@index([read])
   @@index([createdAt])
+  @@map("notifications.notifications")
 }
 
 /// User notification preferences
 model NotificationPreference {
   id     String @id @default(uuid())
   userId String @unique
-  
+
   // Channel preferences
   email Boolean @default(true)
   push  Boolean @default(true)
   sms   Boolean @default(false)
-  
+
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
-  @@map("notifications.notification_preferences")
+
   @@index([userId])
+  @@map("notifications.notification_preferences")
 }
 
 /// Email delivery logs
 model EmailLog {
   id String @id @default(uuid())
-  
+
   to      String
   from    String @default("noreply@codezest.com")
   subject String
   body    String
-  
+
   status String @default("PENDING") // PENDING, SENT, FAILED, BOUNCED
-  
+
   // Email service metadata
   provider   String? // "sendgrid", "ses", "resend"
   providerId String? // ID from email service
-  
+
   // Timestamps
   createdAt DateTime  @default(now())
   sentAt    DateTime?
   failedAt  DateTime?
-  
-  @@map("notifications.email_logs")
+
   @@index([to])
   @@index([status])
   @@index([createdAt])
+  @@map("notifications.email_logs")
 }
 
 // ============================================================================
@@ -765,47 +772,46 @@ model EmailLog {
 model UserActivity {
   id     String @id @default(uuid())
   userId String
-  
+
   type        String // "module_started", "assignment_submitted", "quiz_completed"
   description String
-  
+
   // Metadata (JSONB)
   metadata Json? // { moduleId, score, etc. }
-  
+
   createdAt DateTime @default(now())
-  
-  @@map("activity.user_activities")
+
   @@index([userId])
   @@index([type])
   @@index([createdAt])
+  @@map("activity.user_activities")
 }
 
 /// Custom analytics events
 model AnalyticsEvent {
   id String @id @default(uuid())
-  
+
   eventName String
   userId    String?
-  
+
   // Event properties (JSONB)
   properties Json? // Flexible event data
-  
+
   createdAt DateTime @default(now())
-  
-  @@map("activity.analytics_events")
+
   @@index([eventName])
   @@index([userId])
   @@index([createdAt])
+  @@map("activity.analytics_events")
 }
 
 // ============================================================================
 // ENUMS
 // ============================================================================
 
-enum Role {
+enum UserRole {
+  USER
   ADMIN
-  INSTRUCTOR
-  STUDENT
 }
 
 enum Difficulty {
