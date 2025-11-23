@@ -1,6 +1,6 @@
 {
   "name": "@codezest-academy/codezest-db",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Single source of truth for CodeZest database schema & types",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
