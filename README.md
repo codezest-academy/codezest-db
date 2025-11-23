@@ -1,4 +1,4 @@
-# @codezest-academy/db
+# @codezest-academy/codezest-db
 
 > Single source of truth for CodeZest database schema & types
 
@@ -24,13 +24,13 @@ npm install @codezest-academy/db
 ## 🚀 Quick Start
 
 ```typescript
-import { prisma, User, Role } from "@codezest-academy/db";
+import { prisma, User, Role } from '@codezest-academy/db';
 
 // Create a user
 const user = await prisma.user.create({
   data: {
-    email: "student@example.com",
-    name: "John Doe",
+    email: 'student@example.com',
+    name: 'John Doe',
     role: Role.STUDENT,
   },
 });
@@ -145,19 +145,19 @@ MONGODB_URL="mongodb+srv://user:password@cluster.mongodb.net/codezest"
 ### Basic Queries
 
 ```typescript
-import { prisma } from "@codezest-academy/db";
+import { prisma } from '@codezest-academy/db';
 
 // Find all students
 const students = await prisma.user.findMany({
-  where: { role: "STUDENT" },
+  where: { role: 'STUDENT' },
 });
 
 // Create a programming language
 const python = await prisma.programmingLanguage.create({
   data: {
-    name: "Python",
-    slug: "python",
-    difficulty: "BEGINNER",
+    name: 'Python',
+    slug: 'python',
+    difficulty: 'BEGINNER',
   },
 });
 
@@ -166,7 +166,7 @@ const enrollment = await prisma.languageEnrollment.create({
   data: {
     userId: user.id,
     languageId: python.id,
-    status: "ACTIVE",
+    status: 'ACTIVE',
   },
 });
 ```
@@ -208,21 +208,21 @@ const progress = await prisma.moduleProgress.findMany({
 await prisma.$transaction([
   prisma.user.create({
     data: {
-      email: "user@example.com",
-      name: "John Doe",
+      email: 'user@example.com',
+      name: 'John Doe',
     },
   }),
   prisma.userProfile.create({
     data: {
       userId: user.id,
-      bio: "Learning to code",
+      bio: 'Learning to code',
     },
   }),
   prisma.subscription.create({
     data: {
       userId: user.id,
-      plan: "FREE",
-      status: "ACTIVE",
+      plan: 'FREE',
+      status: 'ACTIVE',
     },
   }),
 ]);
@@ -231,20 +231,20 @@ await prisma.$transaction([
 ### MongoDB Integration
 
 ```typescript
-import { mongo } from "@codezest-academy/db/mongo";
+import { mongo } from '@codezest-academy/db/mongo';
 
 // Log user activity
-const activityLogs = await mongo.collection("activity_logs");
+const activityLogs = await mongo.collection('activity_logs');
 await activityLogs.insertOne({
   userId: user.id,
-  action: "module_completed",
+  action: 'module_completed',
   timestamp: new Date(),
 });
 
 // Track analytics
-const analytics = await mongo.collection("analytics_events");
+const analytics = await mongo.collection('analytics_events');
 await analytics.insertOne({
-  eventName: "quiz_completed",
+  eventName: 'quiz_completed',
   userId: user.id,
   properties: { quizId, score: 85 },
 });
@@ -272,17 +272,17 @@ git commit -m "feat: add new field"
 npm run release
 
 # 6. Update consuming services
-npm install @codezest-academy/db@latest
+npm install @codezest-academy/codezest-db@latest
 ```
 
 ### In Consuming Services
 
 ```bash
 # Update to latest version
-npm install @codezest-academy/db@latest
+npm install @codezest-academy/codezest-db@latest
 
 # Run migrations
-npx prisma migrate deploy --schema=node_modules/@codezest-academy/db/prisma/schema.prisma
+npx prisma migrate deploy --schema=node_modules/@codezest-academy/codezest-db/prisma/schema.prisma
 ```
 
 ## 🛠️ Available Scripts
@@ -303,7 +303,7 @@ npx prisma migrate deploy --schema=node_modules/@codezest-academy/db/prisma/sche
 ### PrismaClient
 
 ```typescript
-import { prisma } from '@codezest-academy/db'
+import { prisma } from '@codezest-academy/codezest-db'
 
 // All Prisma client methods available
 await prisma.user.findMany()
@@ -314,7 +314,7 @@ await prisma.assignment.update({ where: {...}, data: {...} })
 ### Utility Functions
 
 ```typescript
-import { connect, disconnect, healthCheck } from "@codezest-academy/db";
+import { connect, disconnect, healthCheck } from '@codezest-academy/codezest-db';
 
 // Connect explicitly (auto-connects on first query)
 await connect();
@@ -337,7 +337,7 @@ import type {
   Module,
   Assignment,
   Subscription,
-} from "@codezest-academy/db";
+} from '@codezest-academy/codezest-db';
 ```
 
 ## 🏗️ Architecture
