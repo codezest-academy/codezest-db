@@ -1,5 +1,5 @@
 {
-  "name": "@codezest-academy/db",
+  "name": "@codezest-academy/codezest-db",
   "version": "1.0.4",
   "description": "Single source of truth for CodeZest database schema & types",
   "main": "dist/index.js",
@@ -23,7 +23,13 @@
     "release": "npm version patch && npm publish --access public",
     "clean": "rm -rf dist node_modules",
     "typecheck": "tsc --noEmit",
-    "test": "vitest"
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "keywords": [
     "prisma",
@@ -40,12 +46,21 @@
     "mongodb": "^6.3.0"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "@types/node": "^20.10.0",
+    "@typescript-eslint/eslint-plugin": "^8.47.0",
+    "@typescript-eslint/parser": "^8.47.0",
     "dotenv": "^17.2.3",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "jest": "^30.2.0",
+    "prettier": "^3.6.2",
     "prisma": "^5.20.0",
+    "ts-jest": "^29.4.5",
     "tsx": "^4.19.1",
     "typescript": "^5.6.2",
-    "vitest": "^4.0.12"
+    "winston": "^3.18.3"
   },
   "publishConfig": {
     "access": "public",

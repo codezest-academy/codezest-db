@@ -1,20 +1,21 @@
 /**
  * @codezest/db - Main Entry Point
- * 
+ *
  * Single source of truth for CodeZest database access.
  * Exports PrismaClient singleton and all generated types.
- * 
+ *
  * Usage:
  * ```typescript
  * import { prisma, User, Role } from '@codezest/db'
- * 
+ *
  * const users = await prisma.user.findMany({
  *   where: { role: Role.STUDENT }
  * })
  * ```
  */
 
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@prisma/client';
+import { logger } from './common/logger';
 
 // ============================================================================
 // PRISMA CLIENT SINGLETON
@@ -23,20 +24,17 @@ import { PrismaClient } from '@prisma/client'
 // https://www.prisma.io/docs/guides/performance-and-optimization/connection-management
 
 const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined
-}
+  prisma: PrismaClient | undefined;
+};
 
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
-    log:
-      process.env.NODE_ENV === 'development'
-        ? ['query', 'info', 'warn', 'error']
-        : ['error'],
-  })
+    log: process.env.NODE_ENV === 'development' ? ['query', 'info', 'warn', 'error'] : ['error'],
+  });
 
 if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.prisma = prisma
+  globalForPrisma.prisma = prisma;
 }
 
 // ============================================================================
@@ -44,7 +42,7 @@ if (process.env.NODE_ENV !== 'production') {
 // ============================================================================
 // This allows consuming services to import types directly from @codezest/db
 
-export * from '@prisma/client'
+export * from '@prisma/client';
 
 // ============================================================================
 // RE-EXPORT ALL PRISMA TYPES
@@ -52,7 +50,7 @@ export * from '@prisma/client'
 // This allows consuming services to import types directly from @codezest-academy/db
 // Example: import { User, Role, Prisma } from '@codezest-academy/db'
 
-export * from '@prisma/client'
+export * from '@prisma/client';
 
 // ============================================================================
 // UTILITY FUNCTIONS
@@ -63,7 +61,7 @@ export * from '@prisma/client'
  * Call this on application shutdown
  */
 export async function disconnect(): Promise<void> {
-  await prisma.$disconnect()
+  await prisma.$disconnect();
 }
 
 /**
@@ -71,7 +69,7 @@ export async function disconnect(): Promise<void> {
  * Prisma connects automatically on first query, but this can be used for health checks
  */
 export async function connect(): Promise<void> {
-  await prisma.$connect()
+  await prisma.$connect();
 }
 
 /**
@@ -79,10 +77,10 @@ export async function connect(): Promise<void> {
  */
 export async function healthCheck(): Promise<boolean> {
   try {
-    await prisma.$queryRaw`SELECT 1`
-    return true
+    await prisma.$queryRaw`SELECT 1`;
+    return true;
   } catch (error) {
-    console.error('Database health check failed:', error)
-    return false
+    logger.error('Database health check failed:', error);
+    return false;
   }
 }

@@ -1,34 +1,35 @@
 /**
  * @codezest/db - MongoDB Client
- * 
+ *
  * Optional MongoDB integration for unstructured data:
  * - Activity logs
  * - Real-time analytics
  * - Caching layer
  * - Session storage
- * 
+ *
  * Usage:
  * ```typescript
  * import { mongo } from '@codezest/db/mongo'
- * 
+ *
  * const activityLogs = mongo.collection('activity_logs')
  * await activityLogs.insertOne({ userId, action, timestamp })
  * ```
  */
 
-import { MongoClient, Db, Document } from 'mongodb'
+import { MongoClient, Db, Document } from 'mongodb';
+import { logger } from '../common/logger';
 
 // ============================================================================
 // MONGODB CLIENT SINGLETON
 // ============================================================================
 
 const globalForMongo = globalThis as unknown as {
-  mongoClient: MongoClient | undefined
-  mongoDb: Db | undefined
-}
+  mongoClient: MongoClient | undefined;
+  mongoDb: Db | undefined;
+};
 
-let client: MongoClient | undefined = globalForMongo.mongoClient
-let db: Db | undefined = globalForMongo.mongoDb
+let client: MongoClient | undefined = globalForMongo.mongoClient;
+let db: Db | undefined = globalForMongo.mongoDb;
 
 /**
  * Get MongoDB client instance
@@ -36,28 +37,28 @@ let db: Db | undefined = globalForMongo.mongoDb
  */
 export async function getMongoClient(): Promise<MongoClient> {
   if (!client) {
-    const mongoUrl = process.env.MONGODB_URL
-    
+    const mongoUrl = process.env.MONGODB_URL;
+
     if (!mongoUrl) {
-      throw new Error('MONGODB_URL environment variable is not set')
+      throw new Error('MONGODB_URL environment variable is not set');
     }
-    
+
     client = new MongoClient(mongoUrl, {
       maxPoolSize: 10,
       minPoolSize: 2,
       serverSelectionTimeoutMS: 5000,
-    })
-    
-    await client.connect()
-    
+    });
+
+    await client.connect();
+
     if (process.env.NODE_ENV !== 'production') {
-      globalForMongo.mongoClient = client
+      globalForMongo.mongoClient = client;
     }
-    
-    console.log('MongoDB connected successfully')
+
+    logger.info('MongoDB connected successfully');
   }
-  
-  return client
+
+  return client;
 }
 
 /**
@@ -66,16 +67,16 @@ export async function getMongoClient(): Promise<MongoClient> {
  */
 export async function getMongoDB(): Promise<Db> {
   if (!db) {
-    const mongoClient = await getMongoClient()
-    const dbName = process.env.MONGODB_DATABASE || 'codezest'
-    db = mongoClient.db(dbName)
-    
+    const mongoClient = await getMongoClient();
+    const dbName = process.env.MONGODB_DATABASE || 'codezest';
+    db = mongoClient.db(dbName);
+
     if (process.env.NODE_ENV !== 'production') {
-      globalForMongo.mongoDb = db
+      globalForMongo.mongoDb = db;
     }
   }
-  
-  return db
+
+  return db;
 }
 
 /**
@@ -83,16 +84,16 @@ export async function getMongoDB(): Promise<Db> {
  */
 export const mongo = {
   get client() {
-    return getMongoClient()
+    return getMongoClient();
   },
   get db() {
-    return getMongoDB()
+    return getMongoDB();
   },
   async collection<T extends Document = Document>(name: string) {
-    const database = await getMongoDB()
-    return database.collection<T>(name)
+    const database = await getMongoDB();
+    return database.collection<T>(name);
   },
-}
+};
 
 /**
  * Disconnect from MongoDB
@@ -100,12 +101,12 @@ export const mongo = {
  */
 export async function disconnectMongo(): Promise<void> {
   if (client) {
-    await client.close()
-    client = undefined
-    db = undefined
-    globalForMongo.mongoClient = undefined
-    globalForMongo.mongoDb = undefined
-    console.log('MongoDB disconnected')
+    await client.close();
+    client = undefined;
+    db = undefined;
+    globalForMongo.mongoClient = undefined;
+    globalForMongo.mongoDb = undefined;
+    logger.info('MongoDB disconnected');
   }
 }
 
@@ -114,11 +115,11 @@ export async function disconnectMongo(): Promise<void> {
  */
 export async function mongoHealthCheck(): Promise<boolean> {
   try {
-    const mongoClient = await getMongoClient()
-    await mongoClient.db('admin').command({ ping: 1 })
-    return true
+    const mongoClient = await getMongoClient();
+    await mongoClient.db('admin').command({ ping: 1 });
+    return true;
   } catch (error) {
-    console.error('MongoDB health check failed:', error)
-    return false
+    logger.error('MongoDB health check failed:', error);
+    return false;
   }
 }

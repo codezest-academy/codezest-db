@@ -17,8 +17,7 @@ export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 /**
  * Make specific fields required
  */
-export type RequiredBy<T, K extends keyof T> = Omit<T, K> &
-  Required<Pick<T, K>>;
+export type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
 
 /**
  * Extract non-nullable fields
@@ -113,30 +112,28 @@ export function hasRole(user: { role: string }, role: string): boolean {
  * Check if user is admin
  */
 export function isAdmin(user: { role: string }): boolean {
-  return user.role === "ADMIN";
+  return user.role === 'ADMIN';
 }
 
 /**
  * Check if user is a regular user
  */
 export function isUser(user: { role: string }): boolean {
-  return user.role === "USER";
+  return user.role === 'USER';
 }
 
 /**
  * Check if subscription is active
  */
-export function isSubscriptionActive(subscription: {
-  status: string;
-}): boolean {
-  return subscription.status === "ACTIVE";
+export function isSubscriptionActive(subscription: { status: string }): boolean {
+  return subscription.status === 'ACTIVE';
 }
 
 /**
  * Check if submission passed
  */
 export function submissionPassed(submission: { status: string }): boolean {
-  return submission.status === "PASSED";
+  return submission.status === 'PASSED';
 }
 
 // ============================================================================
@@ -147,7 +144,7 @@ export function submissionPassed(submission: { status: string }): boolean {
  * User preferences structure
  */
 export interface UserPreferences {
-  theme?: "light" | "dark" | "system";
+  theme?: 'light' | 'dark' | 'system';
   language?: string;
   notifications?: {
     email?: boolean;
