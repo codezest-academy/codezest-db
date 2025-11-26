@@ -82,6 +82,8 @@ model User {
   emailChanges       EmailChange[]
   loginHistory       LoginHistory[]
   certificates       Certificate[]
+  notificationSettings UserNotificationSetting[]
+  devices              UserDevice[]
 
   // Timestamps
   createdAt DateTime  @default(now())
@@ -949,47 +951,107 @@ model PaymentMethod {
 // Purpose: User notifications, preferences, email logs
 // ============================================================================
 
-/// User notifications
-model Notification {
-  id     String @id @default(uuid())
-  userId String
-
-  type     String // "course_enrolled", "quiz_completed", "payment_success"
-  title    String
-  message  String
-  priority String @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
-
-  read   Boolean   @default(false)
-  readAt DateTime?
-
-  // Metadata (JSONB)
-  metadata Json? // Additional data like courseId, quizId, etc.
-
-  // Timestamps
-  createdAt DateTime @default(now())
-
-  @@index([userId])
-  @@index([read])
-  @@index([createdAt])
-  @@map("notifications.notifications")
-}
-
-/// User notification preferences
-model NotificationPreference {
-  id     String @id @default(uuid())
-  userId String @unique
-
-  // Channel preferences
-  email Boolean @default(true)
-  push  Boolean @default(true)
-  sms   Boolean @default(false)
-
+/// Notification types (System-wide configuration)
+model NotificationType {
+  id          String   @id @default(uuid())
+  name        String   @unique // e.g., "assignment_graded"
+  slug        String   @unique // e.g., "assignment-graded"
+  category    String   // "learning", "account", "marketing"
+  description String?
+  
+  // Default Channels
+  emailEnabled Boolean @default(true)
+  pushEnabled  Boolean @default(true)
+  smsEnabled   Boolean @default(false)
+  inAppEnabled Boolean @default(true)
+  
+  // Templates (Optional)
+  emailTemplateId String?
+  pushTemplateId  String?
+  
+  // Relationships
+  settings      UserNotificationSetting[]
+  notifications Notification[]
+  
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  @@map("notifications.notification_types")
+}
+
+/// User notification settings (Granular preferences)
+model UserNotificationSetting {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  typeId String
+  type   NotificationType @relation(fields: [typeId], references: [id], onDelete: Cascade)
+  
+  // Overrides (Null = use default from NotificationType)
+  email Boolean?
+  push  Boolean?
+  sms   Boolean?
+  inApp Boolean?
+  
+  updatedAt DateTime @updatedAt
+  
+  @@unique([userId, typeId])
+  @@map("notifications.user_settings")
+}
+
+/// User devices for push notifications
+model UserDevice {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  token    String @unique // FCM/APNS token
+  platform String // "ios", "android", "web"
+  model    String? // "iPhone 15", "Pixel 8"
+  
+  isActive   Boolean @default(true)
+  lastUsedAt DateTime @default(now())
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([userId])
+  @@map("notifications.user_devices")
+}
+
+/// User notifications (Enhanced)
+model Notification {
+  id     String @id @default(uuid())
+  userId String
+  // user   User   @relation(fields: [userId], references: [id], onDelete: Cascade) // Defined in User model
+
+  // Link to type
+  typeId String
+  type   NotificationType @relation(fields: [typeId], references: [id])
+  
+  title    String
+  message  String
+  data     Json?    // Dynamic data for navigation/logic
+  priority String   @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  
+  // Status
+  isRead   Boolean   @default(false)
+  readAt   DateTime?
+  isSeen   Boolean   @default(false) // Seen in dropdown but not clicked
+  
+  // Action tracking
+  actionUrl String?
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  expiresAt DateTime? // Auto-cleanup
 
   @@index([userId])
-  @@map("notifications.notification_preferences")
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notifications.notifications")
 }
 
 /// Email delivery logs

@@ -79,6 +79,26 @@
 
 ---
 
+### Migration 5: Notification Schema Enhancements
+
+**Migration**: `20251126095405_enhance_notification_schema`
+**Version Bump**: 1.5.0 → 1.6.0 (minor)
+
+**Changes**:
+
+- ✅ NotificationType (system-wide configuration)
+- ✅ UserNotificationSetting (granular preferences)
+- ✅ UserDevice (push tokens)
+- ✅ Enhanced Notification model
+
+**Breaking Changes**:
+
+- ⚠️ `NotificationPreference` table removed
+- ⚠️ `Notification.type` string removed (replaced by `typeId`)
+- ⚠️ `Notification.read` renamed to `isRead`
+
+---
+
 ## 🎯 Recommended Push Strategy
 
 ### Option 1: All at Once (Recommended)
@@ -93,6 +113,7 @@ git add prisma/migrations/20251126010431_add_user_security_fields/
 git add prisma/migrations/20251126031816_add_name_split_email_changes_login_history/
 git add prisma/migrations/20251126090630_enhance_user_profile_edtech/
 git add prisma/migrations/20251126093710_add_learning_prerequisites_duration_certificates/
+git add prisma/migrations/20251126095405_enhance_notification_schema/
 
 # Commit
 git commit -m "feat: comprehensive schema enhancements
@@ -101,10 +122,13 @@ git commit -m "feat: comprehensive schema enhancements
 - Split name into firstName/lastName/userName
 - Enhance UserProfile with EdTech features
 - Enhance Learning schema (prerequisites, duration, certificates)
+- Enhance Notification schema (types, devices, settings)
 
 BREAKING CHANGES:
 - User.name removed
-- UserProfile fields removed/migrated"
+- UserProfile fields removed/migrated
+- NotificationPreference removed
+- Notification.type removed"
 
 # Push
 git push -u origin feat/comprehensive-schema-enhancements
