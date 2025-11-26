@@ -40,6 +40,34 @@ model User {
   // Email verification
   emailVerified Boolean @default(false)
 
+  // Account Security (Priority 1)
+  isActive         Boolean   @default(true)
+  isSuspended      Boolean   @default(false)
+  suspendedAt      DateTime?
+  suspendedReason  String?
+
+  // Login Security (Priority 1)
+  lastLoginAt      DateTime?
+  lastLoginIp      String?
+  loginAttempts    Int       @default(0)
+  lockedUntil      DateTime?
+
+  // Password Management (Priority 1)
+  passwordChangedAt  DateTime?
+  mustChangePassword Boolean   @default(false)
+
+  // 2FA/MFA Support (Priority 2)
+  twoFactorEnabled Boolean  @default(false)
+  twoFactorSecret  String? // Encrypted TOTP secret
+  backupCodes      String[] // Encrypted backup codes
+
+  // Username (Priority 2)
+  username String? @unique
+
+  // Email Preferences (Priority 2)
+  emailNotifications Boolean @default(true)
+  marketingEmails    Boolean @default(false)
+
   // Relationships
   profile            UserProfile?
   sessions           Session[]
@@ -54,6 +82,11 @@ model User {
 
   @@index([email])
   @@index([role])
+  @@index([isActive])
+  @@index([isSuspended])
+  @@index([twoFactorEnabled])
+  @@index([username])
+  @@index([emailNotifications])
   @@map("auth.users")
 }
 
@@ -103,11 +136,15 @@ model Session {
   ipAddress String?
   userAgent String?
 
+  // Session Revocation (Priority 1)
+  revokedAt DateTime?
+
   createdAt DateTime @default(now())
 
   @@index([userId])
   @@index([token])
   @@index([expiresAt])
+  @@index([revokedAt])
   @@map("auth.sessions")
 }
 
@@ -143,10 +180,15 @@ model PasswordReset {
   used      Boolean   @default(false)
   usedAt    DateTime?
 
+  // Security Tracking (Priority 1)
+  ipAddress String?
+  userAgent String?
+
   createdAt DateTime @default(now())
 
   @@index([userId])
   @@index([token])
+  @@index([expiresAt])
   @@map("auth.password_resets")
 }
 
