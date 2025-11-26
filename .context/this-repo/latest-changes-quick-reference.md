@@ -63,39 +63,51 @@
 
 ---
 
+### Migration 4: Learning Schema Phase 1
+
+**Migration**: `20251126093710_add_learning_prerequisites_duration_certificates`
+**Version Bump**: 1.4.0 → 1.5.0 (minor)
+
+**Changes**:
+
+- ✅ Module Prerequisites (self-referential many-to-many)
+- ✅ Estimated Duration (Module, Assignment, MCQQuiz)
+- ✅ Certificate Model (completion, achievement, mastery)
+- ✅ User certificates relationship
+
+**Breaking Changes**: None (all fields optional)
+
+---
+
 ## 🎯 Recommended Push Strategy
 
 ### Option 1: All at Once (Recommended)
 
 ```bash
 # Create feature branch
-git checkout -b feat/comprehensive-user-schema-enhancements
+git checkout -b feat/comprehensive-schema-enhancements
 
 # Stage all changes
 git add prisma/schema.prisma
 git add prisma/migrations/20251126010431_add_user_security_fields/
 git add prisma/migrations/20251126031816_add_name_split_email_changes_login_history/
 git add prisma/migrations/20251126090630_enhance_user_profile_edtech/
+git add prisma/migrations/20251126093710_add_learning_prerequisites_duration_certificates/
 
 # Commit
-git commit -m "feat: comprehensive user schema enhancements
+git commit -m "feat: comprehensive schema enhancements
 
-- Add user security fields (account lockout, 2FA, login tracking)
+- Add user security fields
 - Split name into firstName/lastName/userName
-- Add EmailChange and LoginHistory models
-- Enhance UserProfile with EdTech + Mini-CRM features (48 normalized + 9 JSON fields)
+- Enhance UserProfile with EdTech features
+- Enhance Learning schema (prerequisites, duration, certificates)
 
 BREAKING CHANGES:
-- User.name removed (migrated to firstName/lastName)
-- UserProfile: occupation→currentRole, company→currentCompany, social links→socials JSON
-
-Migrations:
-- 20251126010431_add_user_security_fields
-- 20251126031816_add_name_split_email_changes_login_history
-- 20251126090630_enhance_user_profile_edtech"
+- User.name removed
+- UserProfile fields removed/migrated"
 
 # Push
-git push -u origin feat/comprehensive-user-schema-enhancements
+git push -u origin feat/comprehensive-schema-enhancements
 
 # Create PR, merge, then publish
 git checkout main

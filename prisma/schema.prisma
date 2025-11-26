@@ -81,6 +81,7 @@ model User {
   emailVerifications EmailVerification[]
   emailChanges       EmailChange[]
   loginHistory       LoginHistory[]
+  certificates       Certificate[]
 
   // Timestamps
   createdAt DateTime  @default(now())
@@ -385,8 +386,9 @@ model ProgrammingLanguage {
   isActive    Boolean    @default(true)
 
   // Relationships
-  modules     Module[]
-  enrollments LanguageEnrollment[]
+  modules      Module[]
+  enrollments  LanguageEnrollment[]
+  certificates Certificate[]
 
   // Timestamps
   createdAt DateTime  @default(now())
@@ -409,12 +411,20 @@ model Module {
   description String?
   syllabus    String? // JSON or text describing what's covered
   order       Int // Display order
+  
+  // NEW: Estimated Duration
+  estimatedDuration Int? // Total minutes to complete entire module
+  
+  // NEW: Prerequisites (self-referential many-to-many)
+  prerequisites Module[] @relation("ModulePrerequisites")
+  dependents    Module[] @relation("ModulePrerequisites")
 
   // Relationships
-  materials   Material[]
-  assignments Assignment[]
-  mcqQuizzes  MCQQuiz[]
-  progress    ModuleProgress[]
+  materials    Material[]
+  assignments  Assignment[]
+  mcqQuizzes   MCQQuiz[]
+  progress     ModuleProgress[]
+  certificates Certificate[]
 
   // Timestamps
   createdAt DateTime  @default(now())
@@ -469,6 +479,9 @@ model Assignment {
 
   maxScore  Int  @default(100)
   timeLimit Int? // minutes
+  
+  // NEW: Estimated Duration
+  estimatedDuration Int? // Expected completion time (different from timeLimit)
 
   // Relationships
   submissions AssignmentSubmission[]
@@ -519,6 +532,9 @@ model MCQQuiz {
   description  String?
   passingScore Int     @default(70)
   timeLimit    Int? // minutes
+  
+  // NEW: Estimated Duration
+  estimatedDuration Int? // Expected completion time (different from timeLimit)
 
   // Relationships
   questions MCQQuestion[]
@@ -751,6 +767,47 @@ model QuizAnalysis {
   @@index([attemptId])
   @@index([analysisType])
   @@map("learning.quiz_analyses")
+}
+
+/// Certificates for course/module completion
+model Certificate {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Certificate Type
+  type String // "completion", "achievement", "mastery"
+  
+  // What was completed
+  languageId String?
+  moduleId   String?
+  language   ProgrammingLanguage? @relation(fields: [languageId], references: [id], onDelete: SetNull)
+  module     Module?              @relation(fields: [moduleId], references: [id], onDelete: SetNull)
+  
+  // Certificate Details
+  title          String  // "Python Programming Certificate"
+  description    String? // "Completed Python Basics and OOP"
+  certificateUrl String? // PDF URL (generated)
+  credentialId   String  @unique // Unique verification code
+  
+  // Verification
+  isVerified Boolean @default(false)
+  verifiedBy String? // Admin who verified
+  
+  // Metadata
+  score Int? // Final score if applicable
+  grade String? // "A", "B", "C" or "Pass", "Distinction"
+  
+  // Timestamps
+  issuedAt  DateTime  @default(now())
+  expiresAt DateTime? // Some certificates expire
+  
+  @@index([userId])
+  @@index([credentialId])
+  @@index([languageId])
+  @@index([moduleId])
+  @@index([type])
+  @@map("learning.certificates")
 }
 
 // ============================================================================
