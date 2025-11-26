@@ -34,7 +34,12 @@ model User {
   id       String   @id @default(uuid())
   email    String   @unique
   password String? // Nullable for OAuth-only users
-  name     String
+  
+  // Name fields
+  firstName String
+  lastName  String
+  userName  String? // Social-style display name (like @username)
+  
   role     UserRole @default(USER)
 
   // Email verification
@@ -74,6 +79,8 @@ model User {
   oauthAccounts      OAuthAccount[]
   passwordResets     PasswordReset[]
   emailVerifications EmailVerification[]
+  emailChanges       EmailChange[]
+  loginHistory       LoginHistory[]
 
   // Timestamps
   createdAt DateTime  @default(now())
@@ -96,32 +103,145 @@ model UserProfile {
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Basic info
-  bio      String?
-  avatar   String? // URL to profile picture
-  location String?
+  // ============================================================================
+  // BASIC INFO (Normalized - Used for Display & Search)
+  // ============================================================================
+  displayName String?  // Public display name
+  bio         String?  // Short bio (max 500 chars)
+  avatar      String?  // Profile picture URL
+  coverImage  String?  // Cover/banner image URL
+  
+  phone    String?
+  location String?  // City, Country
+  timezone String?  // For scheduling
   website  String?
-
-  // NEW FIELDS
-  occupation String?
-  company    String?
-  phone      String?
-  address    String?
-  socials    Json? // { github: string, linkedin: string, twitter: string, etc. }
-
-  // Social links
-  githubUrl   String?
-  linkedinUrl String?
-  twitterUrl  String?
-
-  // User preferences (JSONB for flexibility)
-  preferences Json? // { theme: "dark", language: "en", notifications: {...} }
-
-  // Timestamps
+  
+  // ============================================================================
+  // EDUCATIONAL BACKGROUND (Hybrid)
+  // ============================================================================
+  
+  // Normalized - For Queries & Filtering
+  educationLevel String?  // "high_school", "undergraduate", "graduate", "postgraduate"
+  fieldOfStudy   String?  // "Computer Science", "Business", "Engineering"
+  institution    String?  // Current/most recent institution
+  graduationYear Int?     // Expected or actual
+  
+  // JSON - Full History (Display Only)
+  education Json?
+  // [{ degree: "BS", field: "CS", institution: "MIT", startYear: 2018, endYear: 2022, gpa: 3.8 }]
+  
+  // ============================================================================
+  // PROFESSIONAL DETAILS (Hybrid)
+  // ============================================================================
+  
+  // Normalized - For Queries & Recommendations
+  currentRole     String?  // "Software Engineer", "Student", "Data Analyst"
+  currentCompany  String?  // Company name
+  industry        String?  // "Technology", "Finance", "Healthcare"
+  experienceLevel String?  // "entry", "mid", "senior", "executive"
+  yearsExperience Int?     // Total years
+  
+  // JSON - Full History (Display Only)
+  workExperience Json?
+  // [{ title: "Senior Dev", company: "Tech Corp", startDate: "2020-01", endDate: "2023-12", description: "...", skills: ["Python", "React"] }]
+  
+  // ============================================================================
+  // LEARNING GOALS & MOTIVATIONS (Hybrid)
+  // ============================================================================
+  
+  // Normalized - For Course Recommendations
+  learningGoal String?  // "career_change", "skill_upgrade", "certification", "hobby", "academic"
+  targetRole   String?  // Desired job title
+  weeklyHours  Int?     // Hours available per week
+  
+  // JSON - Detailed Info (Display Only)
+  interests   Json?  // ["web_development", "data_science", "machine_learning"]
+  motivations Json?  // { primary: "Get better job", secondary: "Learn new skills", timeline: "6 months" }
+  
+  // ============================================================================
+  // SKILLS & EXPERTISE (JSON - Display Only)
+  // ============================================================================
+  skills         Json?  // [{ name: "Python", level: "advanced", yearsExperience: 5 }]
+  certifications Json?  // [{ name: "AWS Certified", issuer: "Amazon", issueDate: "2023-06", credentialId: "ABC123" }]
+  
+  // ============================================================================
+  // LEARNING PREFERENCES (JSON - Settings)
+  // ============================================================================
+  learningStyle String?  // "visual", "auditory", "kinesthetic", "reading"
+  studyTime     String?  // "morning", "afternoon", "evening", "night"
+  
+  preferences Json?  // { theme: "dark", language: "en", emailDigest: true, difficulty: "intermediate", subtitles: true, playbackSpeed: 1.5 }
+  
+  // ============================================================================
+  // SOCIAL & NETWORKING (JSON - Display Only)
+  // ============================================================================
+  socials Json?  // { github: "username", linkedin: "username", twitter: "handle", portfolio: "https://..." }
+  
+  // Privacy Settings (Normalized - For Access Control)
+  isPublic         Boolean @default(false)
+  showEmail        Boolean @default(false)
+  showProgress     Boolean @default(true)
+  allowMessages    Boolean @default(true)
+  showCertificates Boolean @default(true)
+  
+  // ============================================================================
+  // ENGAGEMENT & ACTIVITY (Normalized - For Analytics)
+  // ============================================================================
+  onboardingCompleted Boolean   @default(false)
+  onboardingStep      Int       @default(0)
+  lastActiveAt        DateTime?
+  
+  totalLearningHours Int @default(0)
+  coursesCompleted   Int @default(0)
+  certificatesEarned Int @default(0)
+  
+  // Gamification (Normalized - For Leaderboards)
+  points        Int @default(0)
+  level         Int @default(1)
+  streak        Int @default(0)  // Days in a row
+  longestStreak Int @default(0)
+  
+  // ============================================================================
+  // MINI-CRM FIELDS (Normalized - For Business Intelligence)
+  // ============================================================================
+  leadScore       Int       @default(0)   // 0-100
+  leadStatus      String?   // "new", "engaged", "qualified", "converted"
+  emailOpens      Int       @default(0)
+  emailClicks     Int       @default(0)
+  lastEmailSent   DateTime?
+  lastEmailOpened DateTime?
+  
+  utmSource    String?  // Marketing attribution
+  utmMedium    String?
+  utmCampaign  String?
+  referralCode String?
+  
+  segment       String?  // "beginner", "career_changer", "professional"
+  internalNotes String?  // Admin notes (not visible to user)
+  
+  // JSON - Flexible Tagging
+  tags Json?  // ["premium_prospect", "active_learner", "at_risk"]
+  
+  // ============================================================================
+  // TIMESTAMPS
+  // ============================================================================
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // ============================================================================
+  // INDEXES (On Normalized Fields Only)
+  // ============================================================================
   @@index([userId])
+  @@index([isPublic])
+  @@index([educationLevel])
+  @@index([fieldOfStudy])
+  @@index([currentRole])
+  @@index([industry])
+  @@index([learningGoal])
+  @@index([leadStatus])
+  @@index([segment])
+  @@index([lastActiveAt])
+  @@index([onboardingCompleted])
   @@map("auth.user_profiles")
 }
 
@@ -207,6 +327,44 @@ model EmailVerification {
   @@index([userId])
   @@index([token])
   @@map("auth.email_verifications")
+}
+
+/// Email change requests with verification
+model EmailChange {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  oldEmail String
+  newEmail String
+  token    String   @unique
+  verified Boolean  @default(false)
+  expiresAt DateTime
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("auth.email_changes")
+}
+
+/// Login history for security audit trail
+model LoginHistory {
+  id String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  success   Boolean
+  ipAddress String?
+  userAgent String?
+  location  String?  // Geo-location from IP
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("auth.login_history")
 }
 
 // ============================================================================
